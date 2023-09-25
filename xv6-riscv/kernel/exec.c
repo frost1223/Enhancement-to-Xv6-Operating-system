@@ -69,7 +69,7 @@ exec(char *path, char **argv)
     if(ph.vaddr % PGSIZE != 0)
       goto bad;
 
-    if ((strncmp(path, "/init", 5) == 0) || (strcmp(path, "sh", 2) == 0)) {
+    if ((strncmp(path, "/init", 5) == 0) || (strncmp(path, "sh", 2) == 0)) {
 
     uint64 sz1;
     if((sz1 = uvmalloc(pagetable, sz, ph.vaddr + ph.memsz, flags2perm(ph.flags))) == 0)
