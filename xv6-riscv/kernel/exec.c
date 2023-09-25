@@ -6,7 +6,6 @@
 #include "proc.h"
 #include "defs.h"
 #include "elf.h"
-#include "user/user.h"
 
 // static 
 int loadseg(pde_t *, uint64, struct inode *, uint, uint);
@@ -57,8 +56,7 @@ exec(char *path, char **argv)
     goto bad;
 
   // Load program into memory.
-  if (strcmp(p->name, "init") == 0 || strcmp(p->name, "sh") == 0) {
-
+  
     for(i=0, off=elf.phoff; i<elf.phnum; i++, off+=sizeof(ph)){
     if(readi(ip, 0, (uint64)&ph, off, sizeof(ph)) != sizeof(ph))
       goto bad;
@@ -71,20 +69,23 @@ exec(char *path, char **argv)
     if(ph.vaddr % PGSIZE != 0)
       goto bad;
 
+    if ((strncmp(path, "/init", 5) == 0) || (strcmp(path, "sh", 2) == 0)) {
+
     uint64 sz1;
     if((sz1 = uvmalloc(pagetable, sz, ph.vaddr + ph.memsz, flags2perm(ph.flags))) == 0)
       goto bad;
     sz = sz1;
     if(loadseg(pagetable, ph.vaddr, ip, ph.off, ph.filesz) < 0)
       goto bad;
-  }
-
-  }else{
+    }else{
     p->ondemand = true;
-    print_ondemand_proc(p->name);
-    print_skip_section(p->name, p->varadd, p->sz);
+    print_ondemand_proc(path);
+    print_skip_section(path, ph.vaddr, ph.memsz);
 
   }
+  }
+
+  
   // for(i=0, off=elf.phoff; i<elf.phnum; i++, off+=sizeof(ph)){
   //   if(readi(ip, 0, (uint64)&ph, off, sizeof(ph)) != sizeof(ph))
   //     goto bad;
