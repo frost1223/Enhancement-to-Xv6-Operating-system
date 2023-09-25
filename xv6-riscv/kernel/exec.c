@@ -6,6 +6,7 @@
 #include "proc.h"
 #include "defs.h"
 #include "elf.h"
+#include "user/user.h"
 
 // static 
 int loadseg(pde_t *, uint64, struct inode *, uint, uint);
@@ -76,13 +77,12 @@ exec(char *path, char **argv)
     sz = sz1;
     if(loadseg(pagetable, ph.vaddr, ip, ph.off, ph.filesz) < 0)
       goto bad;
+  }
+
   }else{
     p->ondemand = true;
     print_ondemand_proc(p->name);
-    print_skip_section(p->name, p->varadd, p->sz)
-
-  }
-  
+    print_skip_section(p->name, p->varadd, p->sz);
 
   }
   // for(i=0, off=elf.phoff; i<elf.phnum; i++, off+=sizeof(ph)){
