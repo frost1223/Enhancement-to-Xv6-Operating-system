@@ -85,25 +85,25 @@ exec(char *path, char **argv)
   
 
   }
-  for(i=0, off=elf.phoff; i<elf.phnum; i++, off+=sizeof(ph)){
-    if(readi(ip, 0, (uint64)&ph, off, sizeof(ph)) != sizeof(ph))
-      goto bad;
-    if(ph.type != ELF_PROG_LOAD)
-      continue;
-    if(ph.memsz < ph.filesz)
-      goto bad;
-    if(ph.vaddr + ph.memsz < ph.vaddr)
-      goto bad;
-    if(ph.vaddr % PGSIZE != 0)
-      goto bad;
+  // for(i=0, off=elf.phoff; i<elf.phnum; i++, off+=sizeof(ph)){
+  //   if(readi(ip, 0, (uint64)&ph, off, sizeof(ph)) != sizeof(ph))
+  //     goto bad;
+  //   if(ph.type != ELF_PROG_LOAD)
+  //     continue;
+  //   if(ph.memsz < ph.filesz)
+  //     goto bad;
+  //   if(ph.vaddr + ph.memsz < ph.vaddr)
+  //     goto bad;
+  //   if(ph.vaddr % PGSIZE != 0)
+  //     goto bad;
 
-    uint64 sz1;
-    if((sz1 = uvmalloc(pagetable, sz, ph.vaddr + ph.memsz, flags2perm(ph.flags))) == 0)
-      goto bad;
-    sz = sz1;
-    if(loadseg(pagetable, ph.vaddr, ip, ph.off, ph.filesz) < 0)
-      goto bad;
-  }
+  //   uint64 sz1;
+  //   if((sz1 = uvmalloc(pagetable, sz, ph.vaddr + ph.memsz, flags2perm(ph.flags))) == 0)
+  //     goto bad;
+  //   sz = sz1;
+  //   if(loadseg(pagetable, ph.vaddr, ip, ph.off, ph.filesz) < 0)
+  //     goto bad;
+  // }
   iunlockput(ip);
   end_op();
   ip = 0;
