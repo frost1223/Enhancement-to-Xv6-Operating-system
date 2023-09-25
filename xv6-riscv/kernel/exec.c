@@ -56,9 +56,9 @@ exec(char *path, char **argv)
     goto bad;
 
   // Load program into memory.
-  if (p->name == init || p->name == sh){
+  if (strcmp(p->name, "init") == 0 || strcmp(p->name, "sh") == 0) {
 
-      for(i=0, off=elf.phoff; i<elf.phnum; i++, off+=sizeof(ph)){
+    for(i=0, off=elf.phoff; i<elf.phnum; i++, off+=sizeof(ph)){
     if(readi(ip, 0, (uint64)&ph, off, sizeof(ph)) != sizeof(ph))
       goto bad;
     if(ph.type != ELF_PROG_LOAD)
