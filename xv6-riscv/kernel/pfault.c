@@ -78,8 +78,11 @@ void page_fault_handler(void)
     /* Track whether the heap page should be brought back from disk or not. */
     bool load_from_disk = false;
 
+    uint64 stval_val = r_stval();
+    uint64 r_stval_val = stval_val >> 12;
+
     /* Find faulting address. */
-    uint64 faulting_addr = 0;
+    uint64 faulting_addr = r_stval_val << 12;
     print_page_fault(p->name, faulting_addr);
 
     /* Check if the fault address is a heap page. Use p->heap_tracker */
