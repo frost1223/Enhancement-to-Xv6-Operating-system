@@ -81,6 +81,9 @@ exec(char *path, char **argv)
     p->ondemand = true;
     print_ondemand_proc(path);
     print_skip_section(path, ph.vaddr, ph.memsz);
+    while(sz < ph.vaddr + ph.memsz){
+      sz += PGSIZE;
+    }
 
   }
   }

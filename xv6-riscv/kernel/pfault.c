@@ -85,14 +85,73 @@ void page_fault_handler(void)
     uint64 faulting_addr = r_stval_val << 12;
     print_page_fault(p->name, faulting_addr);
 
+  
+
     /* Check if the fault address is a heap page. Use p->heap_tracker */
-    if (true) {
-        goto heap_handle;
-    }
+    // if (true) {
+    //     goto heap_handle;
+    // }
 
     /* If it came here, it is a page from the program binary that we must load. */
-    print_load_seg(faulting_addr, 0, 0);
+    int i, off;
+    uint64 sz = 0;
+    struct elfhdr elf;
+    struct inode *ip;
+    struct proghdr ph;
+    pagetable_t pagetable = 0;
 
+    begin_op();
+
+    if((ip = namei(path)) == 0){
+        end_op();
+        return -1;
+    }
+    ilock(ip);
+
+  // Check ELF header
+    if(readi(ip, 0, (uint64)&elf, 0, sizeof(elf)) != sizeof(elf))
+        goto out;
+
+    if(elf.magic != ELF_MAGIC)
+        goto out;
+
+    for(i=0, off=elf.phoff; i<elf.phnum; i++, off+=sizeof(ph)){
+    if(readi(ip, 0, (uint64)&ph, off, sizeof(ph)) != sizeof(ph))
+      goto out;
+    if(ph.type != ELF_PROG_LOAD)
+      continue;
+    if(ph.memsz < ph.filesz)
+      goto out;
+    if(ph.vaddr + ph.memsz < ph.vaddr)
+      goto out;
+    // if(ph.vaddr % PGSIZE != 0)
+    //   goto out;
+
+    if(ph.vaddr < faulting_addr && ph.vaddr+ph.memsz > faulting_addr){
+        uint64 sz1;
+        if((sz1 = uvmalloc(p->pagetable, faulting_addr, faulting_addr+PGSIZE, flags2perm(ph.flags))) == 0)
+        goto out;
+        sz = sz1;
+        faulting_offset =  ph.offset + faulting_addr - ph.vaddr;
+        if(loadseg(p->pagetable, faulting_addr, ip, ph.off, PGSIZE) < 0)
+        goto out;
+        print_load_seg(faulting_addr, off, PGSIZE);
+
+        break;
+    }else{
+        while(sz < ph.vaddr + ph.memsz){
+            sz += PGSIZE;
+    }
+
+
+    }
+    }
+
+
+    iunlockput(ip);
+    end_op();
+    ip = 0;
+    
     /* Go to out, since the remainder of this code is for the heap. */
     goto out;
 
