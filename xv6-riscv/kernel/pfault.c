@@ -131,7 +131,7 @@ void page_fault_handler(void)
         if((sz1 = uvmalloc(p->pagetable, faulting_addr, faulting_addr+PGSIZE, flags2perm(ph.flags))) == 0)
         goto out;
         sz = sz1;
-        uint64 faulting_offset =  ph.offset + faulting_addr - ph.vaddr;
+        uint64 faulting_offset =  ph.off + faulting_addr - ph.vaddr;
         if(loadseg(p->pagetable, faulting_addr, ip, faulting_offset, PGSIZE) < 0)
         goto out;
         print_load_seg(faulting_addr, faulting_offset, PGSIZE);

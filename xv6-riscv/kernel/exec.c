@@ -37,6 +37,10 @@ exec(char *path, char **argv)
     print_ondemand_proc(path);
   }
 
+  if ((strncmp(path, "/init", 5) != 0) || (strncmp(path, "sh", 2) != 0)) {
+    print_ondemand_proc(path);
+  }
+
   begin_op();
 
   if((ip = namei(path)) == 0){
@@ -79,7 +83,6 @@ exec(char *path, char **argv)
       goto bad;
     }else{
     p->ondemand = true;
-    print_ondemand_proc(path);
     print_skip_section(path, ph.vaddr, ph.memsz);
     while(sz < ph.vaddr + ph.memsz){
       sz += PGSIZE;
