@@ -98,11 +98,10 @@ void page_fault_handler(void)
     struct elfhdr elf;
     struct inode *ip;
     struct proghdr ph;
-    pagetable_t pagetable = 0;
 
     begin_op();
 
-    if((ip = namei(path)) == 0){
+    if((ip = namei(p->name)) == 0){
         end_op();
         return -1;
     }
@@ -127,15 +126,15 @@ void page_fault_handler(void)
     // if(ph.vaddr % PGSIZE != 0)
     //   goto out;
 
-    if(ph.vaddr < faulting_addr && ph.vaddr+ph.memsz > faulting_addr){
+    if(ph.vaddr < stval_val && ph.vaddr+ph.memsz > stval_val){
         uint64 sz1;
         if((sz1 = uvmalloc(p->pagetable, faulting_addr, faulting_addr+PGSIZE, flags2perm(ph.flags))) == 0)
         goto out;
         sz = sz1;
-        faulting_offset =  ph.offset + faulting_addr - ph.vaddr;
-        if(loadseg(p->pagetable, faulting_addr, ip, ph.off, PGSIZE) < 0)
+        uint64 faulting_offset =  ph.offset + faulting_addr - ph.vaddr;
+        if(loadseg(p->pagetable, faulting_addr, ip, faulting_offset, PGSIZE) < 0)
         goto out;
-        print_load_seg(faulting_addr, off, PGSIZE);
+        print_load_seg(faulting_addr, faulting_offset, PGSIZE);
 
         break;
     }else{
