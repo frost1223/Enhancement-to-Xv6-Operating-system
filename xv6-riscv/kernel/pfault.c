@@ -72,7 +72,7 @@ void retrieve_page_from_disk(struct proc* p, uint64 uvaddr) {
 
 void page_fault_handler(void) 
 {
-    int i,j, off;
+    int i, off;
     uint64 sz = 0;
     struct elfhdr elf;
     struct inode *ip;
@@ -90,8 +90,8 @@ void page_fault_handler(void)
     uint64 faulting_addr = r_stval_val << 12;
     print_page_fault(p->name, faulting_addr);
     bool heap_fault = false;
-    for (int j = 0; j < MAXHEAP; j++) {
-        if (stval_val >= p->heap_tracker[i].addr && stval_val < (p->heap_tracker[i].addr + PGSIZE)) {
+    for (int i = 0; i < MAX_HEAP_PAGES; i++) {
+        if (addr >= p->heap_tracker[i].addr && addr < (p->heap_tracker[i].addr + PGSIZE)) {
             bool heap_fault = true;
             break;
         
@@ -145,10 +145,11 @@ void page_fault_handler(void)
         print_load_seg(faulting_addr, faulting_offset, PGSIZE);
 
         break;
-    }else{
-        while(sz < ph.vaddr + ph.memsz){
-            sz += PGSIZE;
     }
+    // }else{
+    //     while(sz < ph.vaddr + ph.memsz){
+    //         sz += PGSIZE;
+    // }
 
 
     }
@@ -167,8 +168,7 @@ heap_handle:
     if (p->resident_heap_pages == MAXRESHEAP) {
         evict_page_to_disk(p);
     }else{
-        for(j = )
-        if((sz = uvmalloc(p->pagetable, sz, faulting_addr + PGSIZE, PTE_W)) == 0) {
+        if((sz = uvmalloc(p->pagetable, faulting_addr, faulting_addr + PGSIZE, PTE_W)) == 0) {
             return -1;
             }
             p->sz = sz;

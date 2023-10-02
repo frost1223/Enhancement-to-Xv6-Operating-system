@@ -283,7 +283,7 @@ growproc(int n)
 
   /* CSE 536: For simplicity, I've made all allocations at page-level. */
   n = PGROUNDUP(n);
-  uint64 pages = PGROUNDUP(n/PGSIZE);
+  uint64 pages = n/PGSIZE;
 
   sz = p->sz;
 if(p->ondemand != true){
