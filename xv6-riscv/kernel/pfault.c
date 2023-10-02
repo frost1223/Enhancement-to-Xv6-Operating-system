@@ -72,6 +72,11 @@ void retrieve_page_from_disk(struct proc* p, uint64 uvaddr) {
 
 void page_fault_handler(void) 
 {
+    int i, off;
+    uint64 sz = 0;
+    struct elfhdr elf;
+    struct inode *ip;
+    struct proghdr ph;
     /* Current process struct */
     struct proc *p = myproc();
 
@@ -84,20 +89,21 @@ void page_fault_handler(void)
     /* Find faulting address. */
     uint64 faulting_addr = r_stval_val << 12;
     print_page_fault(p->name, faulting_addr);
+    bool heap_fault = false;
+    for (int i = 0; i < MAX_HEAP_PAGES; i++) {
+        if (stval_val >= p->heap_tracker[i].addr && stval_val < (p->heap_tracker[i].addr + PGSIZE)) {
+            bool heap_fault = true;
+            break;
+        }
 
-  
 
     /* Check if the fault address is a heap page. Use p->heap_tracker */
-    // if (true) {
-    //     goto heap_handle;
-    // }
+    if (heap_fault) {
+        goto heap_handle;
+    }
 
     /* If it came here, it is a page from the program binary that we must load. */
-    int i, off;
-    uint64 sz = 0;
-    struct elfhdr elf;
-    struct inode *ip;
-    struct proghdr ph;
+
 
     begin_op();
 
@@ -158,6 +164,11 @@ heap_handle:
     /* 2.4: Check if resident pages are more than heap pages. If yes, evict. */
     if (p->resident_heap_pages == MAXRESHEAP) {
         evict_page_to_disk(p);
+    }else{
+        if((sz = uvmalloc(p->pagetable, sz, sz + PGSIZE, PTE_W)) == 0) {
+            return -1;
+            }
+            p->sz = sz;
     }
 
     /* 2.3: Map a heap page into the process' address space. (Hint: check growproc) */

@@ -283,17 +283,23 @@ growproc(int n)
 
   /* CSE 536: For simplicity, I've made all allocations at page-level. */
   n = PGROUNDUP(n);
+  uint64 pages = PGROUNDUP(n/PGSIZE);
 
   sz = p->sz;
-  if(n > 0){
+if(p->ondemand != true){
+    if(n > 0){
     if((sz = uvmalloc(p->pagetable, sz, sz + n, PTE_W)) == 0) {
       return -1;
     }
-  } else if(n < 0){
-    sz = uvmdealloc(p->pagetable, sz, sz + n);
-  }
-  p->sz = sz;
-  return 0;
+    
+    } else if(n < 0){
+      sz = uvmdealloc(p->pagetable, sz, sz + n);
+    }
+    p->sz = sz;
+    return 0;
+}else{
+  track_heap(p, sz, pages);
+}
 }
 
 // Create a new process, copying the parent.
