@@ -72,7 +72,7 @@ void retrieve_page_from_disk(struct proc* p, uint64 uvaddr) {
 
 void page_fault_handler(void) 
 {
-    int i, off;
+    int i,j, off;
     uint64 sz = 0;
     struct elfhdr elf;
     struct inode *ip;
@@ -90,11 +90,13 @@ void page_fault_handler(void)
     uint64 faulting_addr = r_stval_val << 12;
     print_page_fault(p->name, faulting_addr);
     bool heap_fault = false;
-    for (int i = 0; i < MAX_HEAP_PAGES; i++) {
+    for (int j = 0; j < MAXHEAP; j++) {
         if (stval_val >= p->heap_tracker[i].addr && stval_val < (p->heap_tracker[i].addr + PGSIZE)) {
             bool heap_fault = true;
             break;
+        
         }
+    }
 
 
     /* Check if the fault address is a heap page. Use p->heap_tracker */
@@ -165,7 +167,8 @@ heap_handle:
     if (p->resident_heap_pages == MAXRESHEAP) {
         evict_page_to_disk(p);
     }else{
-        if((sz = uvmalloc(p->pagetable, sz, sz + PGSIZE, PTE_W)) == 0) {
+        for(j = )
+        if((sz = uvmalloc(p->pagetable, sz, faulting_addr + PGSIZE, PTE_W)) == 0) {
             return -1;
             }
             p->sz = sz;
