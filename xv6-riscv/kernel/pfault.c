@@ -90,8 +90,8 @@ void page_fault_handler(void)
     uint64 faulting_addr = r_stval_val << 12;
     print_page_fault(p->name, faulting_addr);
     bool heap_fault = false;
-    for (int i = 0; i < MAX_HEAP_PAGES; i++) {
-        if (addr >= p->heap_tracker[i].addr && addr < (p->heap_tracker[i].addr + PGSIZE)) {
+    for (int i = 0; i < MAXHEAP; i++) {
+        if (faulting_addr >= p->heap_tracker[i].addr && faulting_addr < (p->heap_tracker[i].addr + PGSIZE)) {
             bool heap_fault = true;
             break;
         
@@ -152,7 +152,6 @@ void page_fault_handler(void)
     // }
 
 
-    }
     }
 
 
