@@ -299,6 +299,7 @@ if(p->ondemand != true){
     return 0;
 }else{
   track_heap(p, sz, pages);
+  p->sz = sz + n;
 }
 }
 

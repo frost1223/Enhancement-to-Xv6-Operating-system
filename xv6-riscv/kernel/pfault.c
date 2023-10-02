@@ -170,7 +170,6 @@ heap_handle:
         if((sz = uvmalloc(p->pagetable, faulting_addr, faulting_addr + PGSIZE, PTE_W)) == 0) {
             return -1;
             }
-            p->sz = sz;
     }
 
     /* 2.3: Map a heap page into the process' address space. (Hint: check growproc) */
