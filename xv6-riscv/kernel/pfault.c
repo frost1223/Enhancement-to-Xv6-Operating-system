@@ -245,10 +245,10 @@ heap_handle:
     /* 2.3: Map a heap page into the process' address space. (Hint: check growproc) */
     if((sz = uvmalloc(p->pagetable, faulting_addr, faulting_addr + PGSIZE, PTE_W)) == 0) {
 
-            p->heap_tracker[tracker].loaded = 1;
-            p->heap_tracker[tracker].last_load_time = read_current_timestamp();
-
             return -1;
+    }else{
+        p->heap_tracker[tracker].loaded = 1;
+        p->heap_tracker[tracker].last_load_time = read_current_timestamp();
     }
 
 
