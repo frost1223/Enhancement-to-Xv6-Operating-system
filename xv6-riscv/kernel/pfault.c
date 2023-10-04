@@ -40,7 +40,7 @@ void evict_page_to_disk(struct proc* p) {
     /* Find free block */
     int blockno = 0;
     for(int i = 0; i < PSASIZE; i++){
-        if(psa_tracker[i] = false){
+        if(psa_tracker[i] == false){
             blockno = psa_tracker[i];
             break;
         }
