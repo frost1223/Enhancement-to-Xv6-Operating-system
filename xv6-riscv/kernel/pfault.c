@@ -213,8 +213,6 @@ void page_fault_handler(void)
     //     while(sz < ph.vaddr + ph.memsz){
     //         sz += PGSIZE;
     // }
-
-
     }
 
 
@@ -251,8 +249,8 @@ heap_handle:
             p->heap_tracker[tracker].last_load_time = read_current_timestamp();
 
             return -1;
-            }
     }
+
 
     
 
