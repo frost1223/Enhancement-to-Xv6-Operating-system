@@ -84,6 +84,7 @@ void evict_page_to_disk(struct proc* p) {
     
     p->heap_tracker[block_tacker].startblock = blockno;
     p->heap_tracker[block_tacker].loaded = false;
+    p->heap_tracker[block_tacker].last_load_time = 0xFFFFFFFFFFFFFFFF;
 
     /* Unmap swapped out page */
     uvmunmap(p->pagetable, victim_page, 1, 0);
