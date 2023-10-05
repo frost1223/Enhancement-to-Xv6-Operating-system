@@ -75,7 +75,7 @@ void evict_page_to_disk(struct proc* p) {
 
         b = bread(1, PSASTART+(blockno)+i);
         // Copy page contents to b.data using memmove.
-        memmove(b->data, victim_page + (i*BSIZE) , BSIZE);
+        memmove(b->data, kernel_page + (i*BSIZE) , BSIZE);
         bwrite(b);
         brelse(b);
         psa_tracker[blockno] = true;
