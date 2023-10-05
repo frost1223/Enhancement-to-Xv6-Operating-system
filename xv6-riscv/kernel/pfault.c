@@ -78,7 +78,7 @@ void evict_page_to_disk(struct proc* p) {
         memmove(b->data, kernel_page + (i*BSIZE) , BSIZE);
         bwrite(b);
         brelse(b);
-        psa_tracker[blockno] = true;
+        psa_tracker[blockno+i] = true;
 
     }
     
