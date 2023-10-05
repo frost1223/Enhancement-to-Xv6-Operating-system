@@ -47,16 +47,18 @@ void evict_page_to_disk(struct proc* p) {
     }
 
     /* Find victim page using FIFO. */
-    uint64 victim_page = p->heap_tracker[0].addr;
+    uint64 victim_page_time = p->heap_tracker[0].last_load_time;
+    // uint64 victim_page = 0;
     int block_tacker = 0;
     for(int i = 0; i<MAXHEAP; i++){
-        if(p->heap_tracker[i].last_load_time < victim_page){
-            victim_page = p->heap_tracker[i].addr;
+        if(p->heap_tracker[i].last_load_time < victim_page_time){
+            victim_page_time = p->heap_tracker[i].last_load_time;
             block_tacker = i;
         }
         
     }
-
+    uint64 victim_page = p->heap_tracker[block_tacker].addr;
+    
 
     char *kernel_page = kalloc();
     copyin(p->pagetable, kernel_page, victim_page, PGSIZE);
@@ -81,6 +83,7 @@ void evict_page_to_disk(struct proc* p) {
     }
     
     p->heap_tracker[block_tacker].startblock = blockno;
+    p->heap_tracker[block_tacker].loaded = false;
 
     /* Unmap swapped out page */
     uvmunmap(p->pagetable, victim_page, 1, 0);
@@ -155,7 +158,6 @@ void page_fault_handler(void)
         if (faulting_addr >= p->heap_tracker[i].addr && faulting_addr < (p->heap_tracker[i].addr + PGSIZE)) {
             heap_fault = true;
             tracker = i;
-            al_loaded = p->heap_tracker[i].loaded;
             break;
         
         }
@@ -228,10 +230,15 @@ heap_handle:
     if (p->resident_heap_pages == MAXRESHEAP) {
         evict_page_to_disk(p);
 
-        if(al_loaded ==1){
+        // if(al_loaded ==1){
 
-            load_from_disk = true;
-        }
+        //     load_from_disk = true;
+        // }
+    }
+    if(p->heap_tracker[tracker].startblock != -1){
+        load_from_disk = true;
+    
+
     }
 
     /* 2.4: Update the last load time for the loaded heap page in p->heap_tracker. */
@@ -239,17 +246,25 @@ heap_handle:
     /* 2.4: Heap page was swapped to disk previously. We must load it from disk. */
     if (load_from_disk) {
         retrieve_page_from_disk(p, faulting_addr);
+        p->heap_tracker[tracker].loaded = 1;
         p->heap_tracker[tracker].last_load_time = read_current_timestamp();
+    }else{
+        sz = uvmalloc(p->pagetable, faulting_addr, faulting_addr + PGSIZE, PTE_W);
+        p->heap_tracker[tracker].loaded = 1;
+        p->heap_tracker[tracker].last_load_time = read_current_timestamp();
+        
+
+
     }
     
     /* 2.3: Map a heap page into the process' address space. (Hint: check growproc) */
-    if((sz = uvmalloc(p->pagetable, faulting_addr, faulting_addr + PGSIZE, PTE_W)) == 0) {
+    // if((sz = uvmalloc(p->pagetable, faulting_addr, faulting_addr + PGSIZE, PTE_W)) == 0) {
 
-            return -1;
-    }else{
-        p->heap_tracker[tracker].loaded = 1;
-        p->heap_tracker[tracker].last_load_time = read_current_timestamp();
-    }
+    //         return -1;
+    // }else{
+    //     p->heap_tracker[tracker].loaded = 1;
+    //     p->heap_tracker[tracker].last_load_time = read_current_timestamp();
+    // }
 
 
     
