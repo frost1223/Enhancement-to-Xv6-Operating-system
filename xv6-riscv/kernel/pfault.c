@@ -126,6 +126,7 @@ void retrieve_page_from_disk(struct proc* p, uint64 uvaddr) {
     }
 
     /* Copy from temp kernel page to uvaddr (use copyout) */
+    uvmalloc(p->pagetable, uvaddr, uvaddr+PGSIZE, PTE_W); 
     copyout(p->pagetable, uvaddr, kernel_page, PGSIZE);
     kfree(kernel_page);
 }
@@ -250,7 +251,7 @@ heap_handle:
         p->heap_tracker[tracker].loaded = 1;
         p->heap_tracker[tracker].last_load_time = read_current_timestamp();
     }else{
-        sz = uvmalloc(p->pagetable, faulting_addr, faulting_addr + PGSIZE, PTE_W);
+        uvmalloc(p->pagetable, faulting_addr, faulting_addr + PGSIZE, PTE_W);
         p->heap_tracker[tracker].loaded = 1;
         p->heap_tracker[tracker].last_load_time = read_current_timestamp();
         
