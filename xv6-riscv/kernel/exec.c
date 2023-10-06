@@ -37,7 +37,7 @@ exec(char *path, char **argv)
     print_ondemand_proc(path);
   }
 
-  if ((strncmp(path, "/init", 5) != 0) && (strncmp(path, "sh", 2) != 0)) {
+  if ((strncmp(path, "/init", 5) != 0) && (strncmp(path, "sh", 2) != 0) && (strncmp(path, "test8-cow1", 10) != 0) && (strncmp(path, "test9-cow2", 10) != 0) && (strncmp(path, "test10-cow3", 10) != 0)) {
     print_ondemand_proc(path);
   }
 
