@@ -363,7 +363,7 @@ fork(int cow_enabled)
   }else{
 
     np->cow_enabled = 0; 
-    np->cow_group = 0
+    np->cow_group = 0;
 
     if(uvmcopy(p->pagetable, np->pagetable, p->sz) < 0){
     freeproc(np);

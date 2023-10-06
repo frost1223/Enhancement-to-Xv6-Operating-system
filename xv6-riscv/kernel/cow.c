@@ -134,6 +134,7 @@ void copy_on_write(struct proc* p, uint64 faulting_addr) {
 
     pte_t *pte;
     uint64 pa;
+    uint flags;
     /* CSE 536: (2.6.2) Handling Copy-on-write */
     // uint64 round_fault = PGROUNDDOWN(faulting_addr);
 
