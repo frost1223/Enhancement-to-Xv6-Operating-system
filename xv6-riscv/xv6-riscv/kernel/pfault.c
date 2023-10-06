@@ -155,7 +155,7 @@ void page_fault_handler(void)
 
     int tracker = 0;
 
-    if(r_scause() == 15 && p->cow_enabled == 1){
+    if(r_scause == 15 && p->cow_enabled == 1){
         copy_on_write(p, faulting_addr);
     }
 
