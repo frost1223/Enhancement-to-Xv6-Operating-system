@@ -91,23 +91,66 @@ void cow_init() {
     initlock(&cow_lock, "cow_lock");
 }
 
-int uvmcopy_cow(pagetable_t old, pagetable_t new, uint64 sz) {
+int uvmcopy_cow(pagetable_t old, pagetable_t new, uint64 sz, int group) {
     
     /* CSE 536: (2.6.1) Handling Copy-on-write fork() */
 
     // Copy user vitual memory from old(parent) to new(child) process
 
     // Map pages as Read-Only in both the processes
+    pte_t *pte;
+    uint64 pa, i;
+    uint flags;
+    char *mem;
 
-    return 0;
+    for(i = 0; i < sz; i += PGSIZE){
+        if((pte = walk(old, i, 0)) == 0)
+        panic("uvmcopy_cow: pte should exist");
+        if((*pte & PTE_V) == 0)
+        panic("uvmcopy: page not present");
+        *pte &= ~PTE_W;
+        pa = PTE2PA(*pte);
+        add_shmem(group, pa);
+        flags = PTE_FLAGS(*pte);
+        // if((mem = kalloc()) == 0)
+        // goto err;
+        // memmove(mem, (char*)pa, PGSIZE);
+        if(mappages(new, i, PGSIZE, pa, flags) != 0){
+        // kfree(mem);
+        goto err;
+        }
+    }
+  return 0;
+
+ err:
+  uvmunmap(new, 0, i / PGSIZE, 1);
+  return -1;
+    
+
+    // return 0;
 }
 
-void copy_on_write() {
+void copy_on_write(struct proc* p, uint64 faulting_addr) {
+
+    pte_t *pte;
+    uint64 pa;
     /* CSE 536: (2.6.2) Handling Copy-on-write */
+    // uint64 round_fault = PGROUNDDOWN(faulting_addr);
+
+    
 
     // Allocate a new page 
+    char *mem = kalloc();
+    pte = walk(p->pagetable, faulting_addr, 0);
     
+    pa = PTE2PA(*pte);
+    flags = PTE_FLAGS(*pte);
+    flags |= PTE_W;
     // Copy contents from the shared page to the new page
+    memmove(mem, (char*)pa, PGSIZE);
+    uvmunmap(p->pagetable, faulting_addr, 1, 0);
 
     // Map the new page in the faulting process's page table with write permissions
+    mappages(p->pagetable, faulting_addr, PGSIZE, pa, flags);
+    print_copy_on_write(p, faulting_addr);
 }

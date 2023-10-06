@@ -142,6 +142,7 @@ void page_fault_handler(void)
     /* Current process struct */
     struct proc *p = myproc();
 
+
     /* Track whether the heap page should be brought back from disk or not. */
     bool load_from_disk = false;
 
@@ -153,6 +154,10 @@ void page_fault_handler(void)
     print_page_fault(p->name, faulting_addr);
 
     int tracker = 0;
+
+    if(r_scause == 15 && p->cow_enabled == 1){
+        copy_on_write(p, faulting_addr);
+    }
 
 
     bool heap_fault = false;

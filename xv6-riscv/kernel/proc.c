@@ -324,13 +324,52 @@ fork(int cow_enabled)
 
   // Set the appropriate metadata to track a CoW group
 
+  //   if (cow_enabled) {
+  //   np->cow_enabled = 1;
+  //   np->cow_group = p->pid;
+  // } else {
+  //   np->cow_enabled = 0; 
+  //   np->cow_group = 0; 
+  // }
+
+
+
   // implement and call the uvm_copy() function defined in cow.c
 
   // Copy user memory from parent to child.
-  if(uvmcopy(p->pagetable, np->pagetable, p->sz) < 0){
+  if(cow_enabled == 1){
+
+    np->cow_enabled = 1;
+    if(p->cow_group != 0){
+      np->cow_group = p->cow_group;
+      // cow_group_init(np->cow_group);
+      incr_cow_group_count(np->cow_group);
+    }else{
+      np->cow_group = p->pid;
+      cow_group_init(np->cow_group);
+      incr_cow_group_count(np->cow_group);
+      incr_cow_group_count(np->cow_group);
+    }
+    // pte_t *pte;
+  
+    // pte = walk(p->pagetable, p->sz, 0);
+    // *pte &= ~PTE_W;
+    if(uvmcopy_cow(p->pagetable, np->pagetable, p->sz, np->cow_group) < 0){
     freeproc(np);
     release(&np->lock);
     return -1;
+    }
+
+  }else{
+
+    np->cow_enabled = 0; 
+    np->cow_group = 0
+
+    if(uvmcopy(p->pagetable, np->pagetable, p->sz) < 0){
+    freeproc(np);
+    release(&np->lock);
+    return -1;
+    }
   }
   np->sz = p->sz;
 
