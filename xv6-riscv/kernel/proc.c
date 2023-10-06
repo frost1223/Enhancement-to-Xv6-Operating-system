@@ -299,8 +299,11 @@ if(p->ondemand != true){
     p->sz = sz;
     return 0;
 }else{
+
+  print_skip_heap_region(p->name, p->sz, pages);
   track_heap(p, sz, pages);
   p->sz = sz + n;
+  
 }
 }
 
