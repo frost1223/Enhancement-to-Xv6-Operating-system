@@ -340,12 +340,14 @@ fork(int cow_enabled)
   if(cow_enabled == 1){
 
     np->cow_enabled = 1;
-    if(p->cow_group != 0){
+    if(p->cow_enabled == 1){
       np->cow_group = p->cow_group;
       // cow_group_init(np->cow_group);
       incr_cow_group_count(np->cow_group);
     }else{
       np->cow_group = p->pid;
+      p->cow_enabled = 1;
+       p->cow_group = p->pid;
       cow_group_init(np->cow_group);
       incr_cow_group_count(np->cow_group);
       incr_cow_group_count(np->cow_group);

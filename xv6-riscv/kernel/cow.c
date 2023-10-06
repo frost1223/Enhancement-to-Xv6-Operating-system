@@ -101,7 +101,7 @@ int uvmcopy_cow(pagetable_t old, pagetable_t new, uint64 sz, int group) {
     pte_t *pte;
     uint64 pa, i;
     uint flags;
-    char *mem;
+    // char *mem;
 
     for(i = 0; i < sz; i += PGSIZE){
         if((pte = walk(old, i, 0)) == 0)
@@ -110,23 +110,18 @@ int uvmcopy_cow(pagetable_t old, pagetable_t new, uint64 sz, int group) {
         panic("uvmcopy: page not present");
         *pte &= ~PTE_W;
         pa = PTE2PA(*pte);
-        add_shmem(group, pa);
+        
         flags = PTE_FLAGS(*pte);
         // if((mem = kalloc()) == 0)
         // goto err;
         // memmove(mem, (char*)pa, PGSIZE);
         if(mappages(new, i, PGSIZE, pa, flags) != 0){
         // kfree(mem);
-        goto err;
+            panic("Luchu pattak: page not present");
         }
+        add_shmem(group, pa);
     }
   return 0;
-
- err:
-  uvmunmap(new, 0, i / PGSIZE, 1);
-  return -1;
-    
-
     // return 0;
 }
 
@@ -138,7 +133,7 @@ void copy_on_write(struct proc* p, uint64 faulting_addr) {
     /* CSE 536: (2.6.2) Handling Copy-on-write */
     // uint64 round_fault = PGROUNDDOWN(faulting_addr);
 
-    
+    print_copy_on_write(p, faulting_addr);
 
     // Allocate a new page 
     char *mem = kalloc();
@@ -153,5 +148,5 @@ void copy_on_write(struct proc* p, uint64 faulting_addr) {
 
     // Map the new page in the faulting process's page table with write permissions
     mappages(p->pagetable, faulting_addr, PGSIZE, pa, flags);
-    print_copy_on_write(p, faulting_addr);
+    
 }
