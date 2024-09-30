@@ -1,6 +1,4 @@
-# CSE 536: (Assignment 2) Process Memory Management - On Demand Paging & Copy-On-Write
-
-Please refer to the assignment handout posted on Canvas for a list of tasks.
+# Process Memory Management - On Demand Paging & Copy-On-Write
 
 ## Acknowledgement
 
